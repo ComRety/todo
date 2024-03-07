@@ -63,10 +63,10 @@ function App() {
     countTask(newState);
   };
 
-  const addList = (value, data) => {
+  const addList = (value, data, times) => {
     const newState = [...taskList];
     let newCount = count;
-    newState.push({ id, value, active: true, data, editState: true });
+    newState.push({ id, value, active: true, data, editState: true, times });
     newCount += 1;
     countTask(newState);
     setTaskList(newState);

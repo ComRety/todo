@@ -8,6 +8,7 @@ export default function TaskList({ editStateList, state, activete, edit, deleteT
         const key = item.id;
         return (
           <Task
+            times={item.times}
             editStateList={editStateList}
             editState={item.editState}
             isActive={item.active}

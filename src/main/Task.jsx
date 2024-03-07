@@ -3,12 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 
 import classes from './main.module.css';
 
-export default function Task({ editStateList, editState, activete, children, edit, deleteTask, id, isActive }) {
+export default function Task({ times, editStateList, editState, activete, children, edit, deleteTask, id, isActive }) {
   const [seconds, setSeconds] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(times);
 
   const rog = useRef();
+  const time = useRef(0);
 
   const input = useRef();
 
@@ -39,28 +39,32 @@ export default function Task({ editStateList, editState, activete, children, edi
   }
 
   const start = () => {
-    rog.current = setInterval(() => {
-      setSeconds((prev) => prev + 1);
-    }, 1000);
+    if (time.current === 0) {
+      setSeconds(59);
+      setMinutes((prev) => prev - 1);
+      time.current += 1;
+      rog.current = setInterval(() => {
+        setSeconds((prev) => prev - 1);
+      }, 1000);
+    }
   };
-
-  useEffect(() => {
-    if (seconds === 60) {
-      setMinutes((prev) => prev + 1);
-      setSeconds(0);
-    }
-  }, [seconds]);
-
-  useEffect(() => {
-    if (minutes === 60) {
-      setHours((prev) => prev + 1);
-      setMinutes(0);
-    }
-  }, [minutes]);
 
   const pause = () => {
     clearInterval(rog.current);
+    time.current = 0;
   };
+
+  useEffect(() => {
+    if (seconds === 1) {
+      if (minutes >= 1) {
+        setMinutes((prev) => prev - 1);
+        setSeconds(59);
+      } else {
+        pause();
+        setSeconds(0);
+      }
+    }
+  }, [seconds]);
 
   return (
     <li id={id} className={`${!isActive ? classes.completed : ''} ${!editState ? classes.editing : ''}`}>
@@ -87,8 +91,6 @@ export default function Task({ editStateList, editState, activete, children, edi
               aria-label="pause"
               onClick={pause}
             />
-            <div className={classes.time}>{hours}</div>
-            <div className={classes.time}>:</div>
             <div className={classes.time}>{minutes < 10 ? `0${minutes}` : minutes}</div>
             <div className={classes.time}>:</div>
             <div className={classes.time}>{seconds < 10 ? `0${seconds}` : seconds}</div>

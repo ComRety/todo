@@ -10,8 +10,14 @@ export default function Header({ addList }) {
     if (input.current.value.trim().length === 0) {
       return;
     }
-    addList(input.current.value, new Date());
-    input.current.value = '';
+    const time = prompt('Введите целое количество минут на даннаю задачу');
+    if (Number(time)) {
+      addList(input.current.value, new Date(), Number(time));
+      input.current.value = '';
+    } else {
+      alert('Данные введены неверно');
+    }
+    console.log(Number(time));
   }
 
   return (
