@@ -1,11 +1,14 @@
 import { formatDistanceToNow } from 'date-fns';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { secondsEdit, minutesEdit, activete, editStateList, edit, deleteTask } from '../store/todos';
 
 import classes from './main.module.css';
 
-export default function Task({ times, editStateList, editState, activete, children, edit, deleteTask, id, isActive }) {
-  const [seconds, setSeconds] = useState(0);
-  const [minutes, setMinutes] = useState(times);
+export default function Task({ editState, children, id, isActive }) {
+  const todos = useSelector((state) => state.todos.todos);
+  const dispatch = useDispatch();
 
   const rog = useRef();
   const time = useRef(0);
@@ -13,40 +16,45 @@ export default function Task({ times, editStateList, editState, activete, childr
   const input = useRef();
 
   function toggle() {
-    activete(id);
+    dispatch(activete(id));
     clearInterval(rog.current);
+    time.current = 0;
   }
 
   function editing() {
-    editStateList(id);
+    dispatch(editStateList(id));
     input.current.value = children.value;
   }
 
   function edits(event) {
     event.preventDefault();
     if (input.current.value.trim().length !== 0) {
-      edit(id, input.current.value);
-      editStateList(id);
+      dispatch(edit([id, input.current.value]));
+      dispatch(editStateList(id));
     } else {
-      edit(id, children.value);
-      editStateList(id);
+      dispatch(edit([id, children.value]));
+      dispatch(editStateList(id));
     }
   }
 
   function deletes() {
-    deleteTask(id);
+    dispatch(deleteTask(id));
     clearInterval(rog.current);
   }
 
   const start = () => {
-    if (time.current === 0) {
-      setSeconds(59);
-      setMinutes((prev) => prev - 1);
-      time.current += 1;
-      rog.current = setInterval(() => {
-        setSeconds((prev) => prev - 1);
-      }, 1000);
-    }
+    todos.forEach((i) => {
+      if (i.id === id) {
+        if (time.current === 0) {
+          if (i.active) {
+            time.current += 1;
+            rog.current = setInterval(() => {
+              dispatch(secondsEdit(id));
+            }, 1000);
+          }
+        }
+      }
+    });
   };
 
   const pause = () => {
@@ -55,16 +63,28 @@ export default function Task({ times, editStateList, editState, activete, childr
   };
 
   useEffect(() => {
-    if (seconds === 1) {
-      if (minutes >= 1) {
-        setMinutes((prev) => prev - 1);
-        setSeconds(59);
-      } else {
-        pause();
-        setSeconds(0);
+    todos.forEach((i) => {
+      if (i.id === id) {
+        if ((i.seconds === -1 && i.minutes >= 1) || (i.seconds === 0 && i.minutes === 0)) {
+          if (i.minutes >= 1) {
+            dispatch(minutesEdit(id));
+          } else {
+            pause();
+          }
+        }
       }
-    }
-  }, [seconds]);
+    });
+  });
+
+  const minFn = () => {
+    const min = todos.find((i) => i.id === id);
+    return min.minutes;
+  };
+
+  const secFn = () => {
+    const ces = todos.find((i) => i.id === id);
+    return ces.seconds;
+  };
 
   return (
     <li id={id} className={`${!isActive ? classes.completed : ''} ${!editState ? classes.editing : ''}`}>
@@ -91,9 +111,9 @@ export default function Task({ times, editStateList, editState, activete, childr
               aria-label="pause"
               onClick={pause}
             />
-            <div className={classes.time}>{minutes < 10 ? `0${minutes}` : minutes}</div>
+            <div className={classes.time}>{minFn() < 10 ? `0${minFn()}` : minFn()}</div>
             <div className={classes.time}>:</div>
-            <div className={classes.time}>{seconds < 10 ? `0${seconds}` : seconds}</div>
+            <div className={classes.time}>{secFn() < 10 ? `0${secFn()}` : secFn()}</div>
           </div>
           <span className={classes.created}>{`created ${formatDistanceToNow(children.data, {
             addSuffix: true,

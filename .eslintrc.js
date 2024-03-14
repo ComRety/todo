@@ -36,6 +36,13 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'no-param-reassign': [
+      'error',
+      {
+        props: true,
+        ignorePropertyModificationsFor: ['state'],
+      },
+    ],
     'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     indent: ['error', 2],
     'prettier/prettier': 'error',

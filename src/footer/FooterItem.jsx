@@ -1,12 +1,18 @@
+import { useDispatch, useSelector } from 'react-redux';
+
+import { footer } from '../store/todos';
+
 import classes from './footer.module.css';
 
-export default function FooterItem({ tab, children, footer }) {
+export default function FooterItem({ children }) {
+  const tab = useSelector((state) => state.todos.tab);
+  const dispatch = useDispatch();
   return (
     <li>
       <button
         type="button"
         className={String(tab) === String(children) ? classes.selected : ''}
-        onClick={() => footer(children)}
+        onClick={() => dispatch(footer(children))}
       >
         {children}
       </button>

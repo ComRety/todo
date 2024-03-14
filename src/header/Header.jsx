@@ -1,9 +1,13 @@
 import { useRef } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { addList } from '../store/todos';
 
 import classes from './header.module.css';
 
-export default function Header({ addList }) {
+export default function Header() {
   const input = useRef();
+  const dispatsh = useDispatch();
 
   function onSubmit(e) {
     e.preventDefault();
@@ -11,13 +15,13 @@ export default function Header({ addList }) {
       return;
     }
     const time = prompt('Введите целое количество минут на даннаю задачу');
-    if (Number(time)) {
-      addList(input.current.value, new Date(), Number(time));
+    const seconds = prompt('Введите количество минут на данную задачу');
+    if (Number(time) && Number(seconds)) {
+      dispatsh(addList([input.current.value, String(new Date()), Number(time), Number(seconds)]));
       input.current.value = '';
     } else {
       alert('Данные введены неверно');
     }
-    console.log(Number(time));
   }
 
   return (
