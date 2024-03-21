@@ -2,7 +2,16 @@ import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { secondsEdit, minutesEdit, activete, editStateList, edit, deleteTask } from '../store/todos';
+import {
+  secondsEdit,
+  minutesEdit,
+  activete,
+  editStateList,
+  edit,
+  deleteTask,
+  rogTime,
+  rogDelete,
+} from '../store/todos';
 
 import classes from './main.module.css';
 
@@ -10,15 +19,11 @@ export default function Task({ editState, children, id, isActive }) {
   const todos = useSelector((state) => state.todos.todos);
   const dispatch = useDispatch();
 
-  const rog = useRef();
-  const time = useRef(0);
-
   const input = useRef();
 
   function toggle() {
     dispatch(activete(id));
-    clearInterval(rog.current);
-    time.current = 0;
+    dispatch(rogDelete(id));
   }
 
   function editing() {
@@ -39,18 +44,17 @@ export default function Task({ editState, children, id, isActive }) {
 
   function deletes() {
     dispatch(deleteTask(id));
-    clearInterval(rog.current);
   }
 
   const start = () => {
     todos.forEach((i) => {
       if (i.id === id) {
-        if (time.current === 0) {
+        if (i.time === 0) {
           if (i.active) {
-            time.current += 1;
-            rog.current = setInterval(() => {
+            const setId = setInterval(() => {
               dispatch(secondsEdit(id));
             }, 1000);
+            dispatch(rogTime([id, setId]));
           }
         }
       }
@@ -58,8 +62,7 @@ export default function Task({ editState, children, id, isActive }) {
   };
 
   const pause = () => {
-    clearInterval(rog.current);
-    time.current = 0;
+    dispatch(rogDelete(id));
   };
 
   useEffect(() => {

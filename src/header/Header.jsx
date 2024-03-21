@@ -16,7 +16,7 @@ export default function Header() {
     }
     const time = prompt('Введите целое количество минут на даннаю задачу');
     const seconds = prompt('Введите количество минут на данную задачу');
-    if (Number(time) && Number(seconds)) {
+    if (Number(time) && Number(seconds) && Number(seconds) >= 0 && Number(seconds) < 60 && Number(time) >= 0) {
       dispatsh(addList([input.current.value, String(new Date()), Number(time), Number(seconds)]));
       input.current.value = '';
     } else {
